@@ -22,7 +22,7 @@ public class AccountService {
         if (account.getUsername().isBlank() || account.getPassword().length() < 4) {
             throw new BadRequestException("Invalid account");
         }
-        if (accountRepository.findByUsername(account.getUsername().isPresent())) {
+        if (accountRepository.findByUsername(account.getUsername()).isPresent()) {
             throw new ConflictException("Username already exists");
         }
         return accountRepository.save(account);
