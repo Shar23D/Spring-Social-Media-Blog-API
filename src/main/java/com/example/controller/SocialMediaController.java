@@ -58,8 +58,8 @@ public class SocialMediaController {
     }
     
     @DeleteMapping("/messages/{messageId}")
-    public int deleteMessage(@PathVariable Long messageId) {
-        return messageService.deleteMessage(messageId);
+    public void deleteMessage(@PathVariable Long messageId) {
+        messageService.deleteMessage(messageId);
     }
 
     @PatchMapping("/messages/{messageId}")

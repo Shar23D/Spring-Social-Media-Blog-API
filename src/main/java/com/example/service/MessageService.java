@@ -16,12 +16,12 @@ import com.example.repository.MessageRepository;
 @Service
 public class MessageService {
     MessageRepository messageRepository;
-    @Autowired
-    private AccountRepository accountRepository;
+    AccountRepository accountRepository;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository){
+    public MessageService(MessageRepository messageRepository, AccountRepository accountRepository){
         this.messageRepository = messageRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Transactional
@@ -29,7 +29,7 @@ public class MessageService {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
             throw new BadRequestException("Invalid message length");
         }
-        Account postedBy = accountRepository.findById(message.getPostedBy().getAccountId()).orElseThrow(() -> new BadRequestException("Account not found"));
+        Integer postedBy = accountRepository.findById(message.getPostedBy().getAccountId()).orElseThrow(() -> new BadRequestException("Account not found"));
         message.setPostedBy(postedBy);
         return messageRepository.save(message);
     }
@@ -45,8 +45,8 @@ public class MessageService {
     }
 
     @Transactional
-    public int deleteMessage(Long messageId) {
-        return messageRepository.deleteById(messageId);
+    public void deleteMessage(Long messageId) {
+        messageRepository.deleteById(messageId);
     }
 
     @Transactional
