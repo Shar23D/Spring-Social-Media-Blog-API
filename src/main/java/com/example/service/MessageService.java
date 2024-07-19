@@ -45,7 +45,7 @@ public class MessageService {
     }
 
     @Transactional
-    public Message deletMessage(Long messageId) {
+    public int deletMessage(Long messageId) {
         return messageRepository.deleteById(messageId);
     }
 
