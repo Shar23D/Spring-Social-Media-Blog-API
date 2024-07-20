@@ -19,9 +19,9 @@ public class MessageService {
     AccountRepository accountRepository;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository, AccountRepository accountRepository){
-        this.messageRepository = messageRepository;
-        this.accountRepository = accountRepository;
+    public MessageService(MessageRepository messageRepository ,AccountRepository accountRepository){
+            this.messageRepository = messageRepository;
+            this.accountRepository = accountRepository;
     }
 
     @Transactional
@@ -29,8 +29,9 @@ public class MessageService {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
             throw new BadRequestException("Invalid message length");
         }
-        long postedBy = accountRepository.findById(message.getPostedBy().getAccountId()).orElseThrow(() -> new BadRequestException("Account not found"));
-        message.setPostedBy(postedBy);
+        if(!accountRepository.existsById((long) message.getPostedBy().longValue())) {
+            throw new BadRequestException("Account does not exist");
+        }
         return messageRepository.save(message);
     }
     
