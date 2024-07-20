@@ -77,7 +77,7 @@ public class SocialMediaController {
 
     @GetMapping("/accounts/{accountId}/messages")
     public List<Message> getMessagesByAccountId(@PathVariable Integer accountId) {
-        return messageService.getMessagesByAccountId(accountId);
+        return messageService.getMessagesByPostedBy(accountId);
     }
 
 

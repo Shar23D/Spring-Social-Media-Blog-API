@@ -59,7 +59,7 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<Message> getMessagesByAccountId(Integer accountId) {
-        return messageRepository.findPostedByAccountId(accountId);
+    public List<Message> getMessagesByPostedBy(Integer postedBy) {
+        return messageRepository.findMessagesByPostedBy(postedBy);
     }
 }
