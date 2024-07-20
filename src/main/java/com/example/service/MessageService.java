@@ -1,12 +1,10 @@
 package com.example.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.exception.BadRequestException;
 import com.example.exception.NotFoundException;
@@ -27,9 +25,9 @@ public class MessageService {
     @Transactional
     public Message createMesage(Message message) {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
-            throw new BadRequestException("Invalid message length");
+            throw new BadRequestException("Message should not be blank and be less than 255 characters");
         }
-        if(!accountRepository.existsById((long) message.getPostedBy().longValue())) {
+        if(!accountRepository.existsById((Long) message.getPostedBy().longValue())) {
             throw new BadRequestException("Account does not exist");
         }
         return messageRepository.save(message);
