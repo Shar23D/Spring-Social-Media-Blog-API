@@ -29,7 +29,7 @@ public class MessageService {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
             throw new BadRequestException("Invalid message length");
         }
-        Integer postedBy = accountRepository.findById(message.getPostedBy().getAccountId()).orElseThrow(() -> new BadRequestException("Account not found"));
+        long postedBy = accountRepository.findById(message.getPostedBy().getAccountId()).orElseThrow(() -> new BadRequestException("Account not found"));
         message.setPostedBy(postedBy);
         return messageRepository.save(message);
     }
@@ -40,17 +40,17 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public Message getMessage(Long messageId) {
+    public Message getMessage(long messageId) {
         return messageRepository.findById(messageId).orElseThrow(() -> new NotFoundException("Message not found"));
     }
 
     @Transactional
-    public void deleteMessage(Long messageId) {
+    public void deleteMessage(long messageId) {
         messageRepository.deleteById(messageId);
     }
 
     @Transactional
-    public Message updatMessage(Long messageId, String messageText) {
+    public Message updatMessage(long messageId, String messageText) {
         Message message = getMessage(messageId);
         if (messageText.isBlank() || messageText.length() > 255) {
             throw new BadRequestException("Invalid message length");
@@ -60,7 +60,7 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<Message> getMessagesByAccountId(Long accountId) {
+    public List<Message> getMessagesByAccountId(long accountId) {
         return messageRepository.findbyPostedByAccountId(accountId);
     }
 }
