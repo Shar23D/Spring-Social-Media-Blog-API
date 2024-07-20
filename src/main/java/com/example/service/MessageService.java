@@ -4,12 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.entity.Account;
 import com.example.entity.Message;
-import com.example.exception.BadRequestException;
-import com.example.exception.NotFoundException;
 import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 
@@ -40,17 +36,22 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
-    public Message findById(Integer id) {
-        return messageRepository.findById(id).orElse(null);
+    public Message findById(Integer messageId) {
+        return messageRepository.findById(messageId).orElse(null);
     }
 
-    public int deleteMessage(Integer id) {
-        messageRepository.deleteById(id);
-        return 1; // return 1 if deleted successfully
+    public int deleteMessage(Integer messageId) {
+        if (messageRepository.existsById(messageId)) {
+            messageRepository.deleteById(messageId);
+            return 1; // return 1 if deleted successfully
+        } else {
+            return 0;
+        }
+
     }
 
-    public int updateMessage(Integer id, String messageText) {
-        Message message = findById(id);
+    public int updateMessage(Integer messageId, String messageText) {
+        Message message = findById(messageId);
         if (message != null) {
             message.setMessageText(messageText);
             messageRepository.save(message);

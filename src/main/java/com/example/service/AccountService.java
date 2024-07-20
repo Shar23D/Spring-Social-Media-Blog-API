@@ -4,11 +4,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.entity.Account;
 import com.example.repository.AccountRepository;
-import com.example.exception.*;
 
 @Service
 public class AccountService {
@@ -27,8 +25,8 @@ public class AccountService {
         return accountRepository.findByUsername(username).orElse(null);
     }
 
-    public Account findById(Integer id) {
-        Optional<Account> optionalAccount = accountRepository.findById(id);
+    public Account findById(Integer accountId) {
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
         return optionalAccount.orElse(null);
     }
 
