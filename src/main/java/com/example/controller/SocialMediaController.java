@@ -61,22 +61,22 @@ public class SocialMediaController {
     }
 
     @GetMapping("/messages/{messageId}")
-    public Message getMessage(@PathVariable Long messageId) {
+    public Message getMessage(@PathVariable Integer messageId) {
         return messageService.getMessage(messageId);
     }
     
     @DeleteMapping("/messages/{messageId}")
-    public void deleteMessage(@PathVariable Long messageId) {
+    public void deleteMessage(@PathVariable Integer messageId) {
         messageService.deleteMessage(messageId);
     }
 
     @PatchMapping("/messages/{messageId}")
-    public Message updatMessage(@PathVariable Long messageId, @RequestBody String messageText) {
+    public Message updatMessage(@PathVariable Integer messageId, @RequestBody String messageText) {
         return messageService.updatMessage(messageId, messageText);
     }
 
     @GetMapping("/accounts/{accountId}/messages")
-    public List<Message> getMessagesByAccountId(@PathVariable Long accountId) {
+    public List<Message> getMessagesByAccountId(@PathVariable Integer accountId) {
         return messageService.getMessagesByAccountId(accountId);
     }
 

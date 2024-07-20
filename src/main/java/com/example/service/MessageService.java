@@ -17,7 +17,7 @@ public class MessageService {
     AccountRepository accountRepository;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository ,AccountRepository accountRepository){
+    public MessageService(MessageRepository messageRepository, AccountRepository accountRepository){
             this.messageRepository = messageRepository;
             this.accountRepository = accountRepository;
     }
@@ -27,7 +27,7 @@ public class MessageService {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
             throw new BadRequestException("Message should not be blank and be less than 255 characters");
         }
-        if(!accountRepository.existsById((Long) message.getPostedBy().longValue())) {
+        if(!accountRepository.existsById(message.getPostedBy())) {
             throw new BadRequestException("Account does not exist");
         }
         return messageRepository.save(message);
@@ -39,17 +39,17 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public Message getMessage(long messageId) {
+    public Message getMessage(Integer messageId) {
         return messageRepository.findById(messageId).orElseThrow(() -> new NotFoundException("Message not found"));
     }
 
     @Transactional
-    public void deleteMessage(long messageId) {
+    public void deleteMessage(Integer messageId) {
         messageRepository.deleteById(messageId);
     }
 
     @Transactional
-    public Message updatMessage(long messageId, String messageText) {
+    public Message updatMessage(Integer messageId, String messageText) {
         Message message = getMessage(messageId);
         if (messageText.isBlank() || messageText.length() > 255) {
             throw new BadRequestException("Invalid message length");
@@ -59,7 +59,7 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<Message> getMessagesByAccountId(long accountId) {
-        return messageRepository.findbyPostedByAccountId(accountId);
+    public List<Message> getMessagesByAccountId(Integer accountId) {
+        return messageRepository.findPostedByAccountId(accountId);
     }
 }
