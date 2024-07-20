@@ -2,8 +2,6 @@ package com.example.service;
 
 import java.util.Optional;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,26 +19,20 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    @Transactional
-    public Account registerAccount(Account account) {
-        if (account.getUsername().isBlank()) {
-            throw new BadRequestException("Invalid username");
-        }
-        if(account.getPassword().length() < 4) {
-            throw new BadRequestException("Password must be at least 4 characters");
-        }
-        if (accountRepository.findByUsername(account.getUsername()).isPresent()) {
-            throw new ConflictException("Username already exists");
-        }
+    public Account createAccount(Account account) {
         return accountRepository.save(account);
     }
 
-    @Transactional(readOnly = true)
-    public Account loginAccount(Account account) {
-        Optional<Account> existingAccount = accountRepository.findByUsername(account.getUsername());
-        if (!existingAccount.isPresent() ||!existingAccount.get().getPassword().equals(account.getPassword())) {
-            throw new UnauthorizedException("Invalid username or password");
-        }
-        return existingAccount.get();
+    public Account findByUsername(String username) {
+        return accountRepository.findByUsername(username).orElse(null);
+    }
+
+    public Account findById(Integer id) {
+        Optional<Account> optionalAccount = accountRepository.findById(id);
+        return optionalAccount.orElse(null);
+    }
+
+    public Account findByUsernameAndPassword(String username, String password) {
+        return accountRepository.findByUsernameAndPassword(username, password);
     }
 }

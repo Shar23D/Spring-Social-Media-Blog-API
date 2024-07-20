@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,57 +30,89 @@ import com.example.service.MessageService;
 @RequestMapping("/api")
 
 public class SocialMediaController {
-    private final AccountService accountService;
-    private final MessageService messageService;
-    
     @Autowired
-    public SocialMediaController(AccountService accountService, MessageService messageService) {
-        this.accountService = accountService;
-        this.messageService = messageService;
+    private AccountService accountService;
+
+    @Autowired
+    private MessageService messageService;
+    
+
+ @PostMapping("/register")
+    public ResponseEntity<Account> register(@RequestBody Account account) {
+        if (account.getUsername() == null || account.getUsername().trim().isEmpty() ||
+                account.getPassword() == null || account.getPassword().length() < 4) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        Account existingAccount = accountService.findByUsername(account.getUsername());
+        if (existingAccount != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+        Account newAccount = accountService.createAccount(account);
+        return ResponseEntity.ok(newAccount);
     }
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Account registerAccount(@RequestBody Account account) {
-        return accountService.registerAccount(account);
-    }
-    
     @PostMapping("/login")
-    public Account loginAccount(@RequestBody Account account) {
-        return accountService.loginAccount(account);
+    public ResponseEntity<Account> login(@RequestBody Account account) {
+        Account existingAccount = accountService.findByUsernameAndPassword(account.getUsername(), account.getPassword());
+        if (existingAccount == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        return ResponseEntity.ok(existingAccount);
     }
 
     @PostMapping("/messages")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Message createMessage(@RequestBody Message message) {
-        return messageService.createMesage(message);
+    public ResponseEntity<Message> createMessage(@RequestBody Message message) {
+        if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() ||
+                message.getMessageText().length() > 255) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        Account account = accountService.findById(message.getPostedBy());
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        Message newMessage = messageService.createMessage(message);
+        return ResponseEntity.ok(newMessage);
     }
 
     @GetMapping("/messages")
-    public List<Message> getAllMessages() {
-        return messageService.getAllMessages();
+    public ResponseEntity<List<Message>> getAllMessages() {
+        List<Message> messages = messageService.getAllMessages();
+        return ResponseEntity.ok(messages);
     }
 
     @GetMapping("/messages/{messageId}")
-    public Message getMessage(@PathVariable Integer messageId) {
-        return messageService.getMessage(messageId);
+    public ResponseEntity<Message> getMessage(@PathVariable Integer messageId) {
+        Message message = messageService.findById(messageId);
+        return ResponseEntity.ok(message);
     }
-    
+
     @DeleteMapping("/messages/{messageId}")
-    public void deleteMessage(@PathVariable Integer messageId) {
-        messageService.deleteMessage(messageId);
+    public ResponseEntity<String> deleteMessage(@PathVariable Integer messageId) {
+        int rowsUpdated = messageService.deleteMessage(messageId);
+        if (rowsUpdated == 1) {
+            return ResponseEntity.ok("1");
+        } else {
+            return ResponseEntity.ok("");
+        }
     }
 
     @PatchMapping("/messages/{messageId}")
-    public Message updatMessage(@PathVariable Integer messageId, @RequestBody String messageText) {
-        return messageService.updatMessage(messageId, messageText);
+    public ResponseEntity<String> updateMessage(@PathVariable Integer messageId, @RequestBody Message message) {
+        if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() ||
+                message.getMessageText().length() > 255) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        int rowsUpdated = messageService.updateMessage(messageId, message.getMessageText());
+        if (rowsUpdated == 1) {
+            return ResponseEntity.ok("1");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     @GetMapping("/accounts/{accountId}/messages")
-    public List<Message> getMessagesByAccountId(@PathVariable Integer accountId) {
-        return messageService.getMessagesByPostedBy(accountId);
+    public ResponseEntity<List<Message>> getMessagesByAccount(@PathVariable Integer accountId) {
+        List<Message> messages = messageService.getMessagesByAccount(accountId);
+        return ResponseEntity.ok(messages);
     }
-
-
-
 }
