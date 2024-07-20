@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.exception.BadRequestException;
 import com.example.exception.NotFoundException;
@@ -23,8 +25,16 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
+        if (message.getMessageText().trim().isEmpty()) {
+            throw new RuntimeException("Message text cannot be empty");
+        }
+        if (message.getMessageText().length() > 254) {
+            throw new RuntimeException("Message text cannot be longer than 254 characters");
+        }
+        Account account = accountRepository.findById(message.getPostedBy()).orElseThrow(() -> new RuntimeException("Account not found"));
         return messageRepository.save(message);
     }
+
 
     public List<Message> getAllMessages() {
         return messageRepository.findAll();

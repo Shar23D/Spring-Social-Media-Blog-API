@@ -37,15 +37,16 @@ public class SocialMediaController {
     private MessageService messageService;
     
 
- @PostMapping("/register")
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Account> register(@RequestBody Account account) {
         if (account.getUsername() == null || account.getUsername().trim().isEmpty() ||
                 account.getPassword() == null || account.getPassword().length() < 4) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.badRequest().build();
         }
         Account existingAccount = accountService.findByUsername(account.getUsername());
         if (existingAccount != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         Account newAccount = accountService.createAccount(account);
         return ResponseEntity.ok(newAccount);
@@ -55,23 +56,20 @@ public class SocialMediaController {
     public ResponseEntity<Account> login(@RequestBody Account account) {
         Account existingAccount = accountService.findByUsernameAndPassword(account.getUsername(), account.getPassword());
         if (existingAccount == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(existingAccount);
     }
 
     @PostMapping("/messages")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Message> createMessage(@RequestBody Message message) {
-        if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() ||
-                message.getMessageText().length() > 255) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        try {
+            Message createdMessage = messageService.createMessage(message);
+            return ResponseEntity.ok(createdMessage);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        Account account = accountService.findById(message.getPostedBy());
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        Message newMessage = messageService.createMessage(message);
-        return ResponseEntity.ok(newMessage);
     }
 
     @GetMapping("/messages")
@@ -100,13 +98,13 @@ public class SocialMediaController {
     public ResponseEntity<String> updateMessage(@PathVariable Integer messageId, @RequestBody Message message) {
         if (message.getMessageText() == null || message.getMessageText().trim().isEmpty() ||
                 message.getMessageText().length() > 255) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.badRequest().build();
         }
         int rowsUpdated = messageService.updateMessage(messageId, message.getMessageText());
         if (rowsUpdated == 1) {
             return ResponseEntity.ok("1");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.badRequest().build();
         }
     }
 
