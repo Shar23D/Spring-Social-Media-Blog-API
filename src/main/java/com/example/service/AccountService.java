@@ -2,7 +2,6 @@ package com.example.service;
 
 import java.util.Optional;
 
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.entity.Account;
@@ -11,13 +10,13 @@ import com.example.exception.*;
 
 @Service
 public class AccountService {
-    AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+
     @Autowired
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
-    @Transactional
     public Account registerAccount(Account account) {
         if (account.getUsername().isBlank() || account.getPassword().length() < 4) {
             throw new BadRequestException("Invalid account");
@@ -28,7 +27,6 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    @Transactional
     public Account loginAccount(Account account) {
         Optional<Account> existingAccount = accountRepository.findByUsername(account.getUsername());
         if (!existingAccount.isPresent() ||!existingAccount.get().getPassword().equals(account.getPassword())) {
